@@ -21,7 +21,7 @@ class Tea implements Beverage {
     public double cost() { return 1.5; }
 }
 
-// Дополнительные напитки [cite: 67]
+// Дополнительные напитки по заданию [cite: 67]
 class Latte implements Beverage {
     public String getDescription() { return "Латте"; }
     public double cost() { return 3.0; }
@@ -96,17 +96,17 @@ class StripePaymentService {
     }
 }
 
-// Адаптер для Stripe [cite: 81, 87]
+// Адаптер для Stripe [cite: 82, 87]
 class StripePaymentAdapter implements IPaymentProcessor {
     private StripePaymentService stripeService;
     public StripePaymentAdapter(StripePaymentService service) { this.stripeService = service; }
     public void processPayment(double amount) { stripeService.makeTransaction(amount); }
 }
 
-// Дополнительная сторонняя система №2 (Square) [cite: 93]
+// Дополнительная система №2 (Square) [cite: 93]
 class SquarePaymentService {
     public void executePayment(double val) {
-        System.out.println("Платеж $" + val + " через Square подтвержден.");
+        System.out.println("Платеж на сумму $" + val + " через Square выполнен.");
     }
 }
 
@@ -120,12 +120,13 @@ class SquarePaymentAdapter implements IPaymentProcessor {
 // ============================================================================
 // КЛИЕНТСКИЙ КОД (ТЕСТИРОВАНИЕ)
 // ============================================================================
+
 public class Modul8Dom {
     public static void main(String[] args) {
-        // Тестирование системы кафе [cite: 69]
+        // 1. Тестирование системы кафе [cite: 60]
         System.out.println("--- ЗАКАЗ В КАФЕ ---");
         
-        Beverage order = new Mocha(); // Базовый напиток: Мокко
+        Beverage order = new Mocha(); // Базовый напиток
         order = new Milk(order);      // Добавка: Молоко
         order = new Syrup(order);     // Добавка: Сироп
         order = new WhippedCream(order); // Добавка: Сливки
@@ -133,14 +134,14 @@ public class Modul8Dom {
         System.out.println("Заказ: " + order.getDescription());
         System.out.println("Итоговая стоимость: $" + order.cost());
 
+        // 2. Тестирование системы оплаты [cite: 88, 94]
         System.out.println("\n--- СИСТЕМА ОПЛАТЫ ---");
 
-        // Тестирование платежных адаптеров [cite: 94]
         IPaymentProcessor paypal = new PayPalPaymentProcessor();
         IPaymentProcessor stripe = new StripePaymentAdapter(new StripePaymentService());
         IPaymentProcessor square = new SquarePaymentAdapter(new SquarePaymentService());
 
-        paypal.processPayment(order.cost());
+        paypal.processPayment(order.cost()); // Оплата суммы заказа
         stripe.processPayment(25.0);
         square.processPayment(40.0);
     }
