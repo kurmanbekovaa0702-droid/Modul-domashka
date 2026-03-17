@@ -1,4 +1,8 @@
-// ================= DECORATOR =================
+import java.util.*;
+
+// ============================================================================
+// ЧАСТЬ 1: СИСТЕМА УПРАВЛЕНИЯ ЗАКАЗАМИ В КАФЕ (ПАТТЕРН ДЕКОРАТОР)
+// ============================================================================
 
 // Базовый интерфейс для напитков [cite: 7]
 interface Beverage {
@@ -6,49 +10,45 @@ interface Beverage {
     double cost();
 }
 
-// Базовые напитки [cite: 8, 20]
+// Базовые напитки [cite: 8]
 class Espresso implements Beverage {
-    public String getDescription() { return "Espresso"; }
+    public String getDescription() { return "Эспрессо"; }
     public double cost() { return 2.0; }
 }
 
 class Tea implements Beverage {
-    public String getDescription() { return "Tea"; }
+    public String getDescription() { return "Чай"; }
     public double cost() { return 1.5; }
 }
 
+// Дополнительные напитки [cite: 20]
 class Latte implements Beverage {
-    public String getDescription() { return "Latte"; }
+    public String getDescription() { return "Латте"; }
     public double cost() { return 3.0; }
 }
 
 class Mocha implements Beverage {
-    public String getDescription() { return "Mocha"; }
+    public String getDescription() { return "Мокко"; }
     public double cost() { return 3.5; }
 }
 
-// Абстрактный декоратор [cite: 9, 10]
+// Абстрактный класс-декоратор [cite: 9, 10]
 abstract class BeverageDecorator implements Beverage {
-    protected Beverage beverage; // Ссылка на декорируемый объект
+    protected Beverage beverage; 
 
     public BeverageDecorator(Beverage beverage) {
         this.beverage = beverage;
     }
 
-    public String getDescription() {
-        return beverage.getDescription();
-    }
-
-    public double cost() {
-        return beverage.cost();
-    }
+    public String getDescription() { return beverage.getDescription(); }
+    public double cost() { return beverage.cost(); }
 }
 
-// Конкретные добавки [cite: 11, 12, 21]
+// Конкретные декораторы (добавки) [cite: 11, 12]
 class Milk extends BeverageDecorator {
     public Milk(Beverage beverage) { super(beverage); }
     @Override
-    public String getDescription() { return beverage.getDescription() + ", Milk"; }
+    public String getDescription() { return beverage.getDescription() + ", Молоко"; }
     @Override
     public double cost() { return beverage.cost() + 0.5; }
 }
@@ -56,15 +56,16 @@ class Milk extends BeverageDecorator {
 class Sugar extends BeverageDecorator {
     public Sugar(Beverage beverage) { super(beverage); }
     @Override
-    public String getDescription() { return beverage.getDescription() + ", Sugar"; }
+    public String getDescription() { return beverage.getDescription() + ", Сахар"; }
     @Override
     public double cost() { return beverage.cost() + 0.2; }
 }
 
+// Новые типы добавок [cite: 21]
 class WhippedCream extends BeverageDecorator {
     public WhippedCream(Beverage beverage) { super(beverage); }
     @Override
-    public String getDescription() { return beverage.getDescription() + ", Whipped Cream"; }
+    public String getDescription() { return beverage.getDescription() + ", Сливки"; }
     @Override
     public double cost() { return beverage.cost() + 0.7; }
 }
@@ -72,33 +73,35 @@ class WhippedCream extends BeverageDecorator {
 class Syrup extends BeverageDecorator {
     public Syrup(Beverage beverage) { super(beverage); }
     @Override
-    public String getDescription() { return beverage.getDescription() + ", Syrup"; }
+    public String getDescription() { return beverage.getDescription() + ", Сироп"; }
     @Override
     public double cost() { return beverage.cost() + 0.4; }
 }
 
-// ================= ADAPTER =================
+// ============================================================================
+// ЧАСТЬ 2: ИНТЕГРАЦИЯ ПЛАТЕЖНЫХ СИСТЕМ (ПАТТЕРН АДАПТЕР)
+// ============================================================================
 
-// Целевой интерфейс системы [cite: 37]
+// Целевой интерфейс системы [cite: 29, 37]
 interface IPaymentProcessor {
     void processPayment(double amount);
 }
 
-// Существующая реализация [cite: 38]
+// Существующая реализация [cite: 30, 38]
 class PayPalPaymentProcessor implements IPaymentProcessor {
     public void processPayment(double amount) {
-        System.out.println("Processing payment of $" + amount + " via PayPal.");
+        System.out.println("Оплата $" + amount + " через PayPal выполнена успешно.");
     }
 }
 
-// Сторонняя система №1 (Stripe) [cite: 39]
+// Сторонняя система 1 (Stripe) [cite: 32, 39]
 class StripePaymentService {
     public void makeTransaction(double totalAmount) {
-        System.out.println("Making transaction of $" + totalAmount + " via Stripe.");
+        System.out.println("Транзакция на сумму $" + totalAmount + " через Stripe проведена.");
     }
 }
 
-// Адаптер для Stripe [cite: 35, 40]
+// Адаптер для Stripe [cite: 34, 35, 40]
 class StripePaymentAdapter implements IPaymentProcessor {
     private StripePaymentService stripeService;
 
@@ -111,14 +114,14 @@ class StripePaymentAdapter implements IPaymentProcessor {
     }
 }
 
-// Дополнительная сторонняя система №2 (Square) 
+// Дополнительный сторонний сервис (Square) [cite: 46]
 class SquarePaymentService {
     public void executePayment(double val) {
-        System.out.println("Executing payment of $" + val + " via Square.");
+        System.out.println("Платеж на сумму $" + val + " через Square выполнен.");
     }
 }
 
-// Адаптер для Square 
+// Адаптер для Square [cite: 46]
 class SquarePaymentAdapter implements IPaymentProcessor {
     private SquarePaymentService squareService;
 
@@ -131,24 +134,26 @@ class SquarePaymentAdapter implements IPaymentProcessor {
     }
 }
 
-// ================= КЛИЕНТСКИЙ КОД =================
+// ============================================================================
+// КЛИЕНТСКИЙ КОД (ТЕСТИРОВАНИЕ)
+// ============================================================================
 
 public class Modul8Dom {
     public static void main(String[] args) {
-        // Тестирование Декоратора [cite: 13, 22]
-        System.out.println("--- CAFE ORDER SYSTEM ---");
+        // Тестирование системы кафе [cite: 13, 22]
+        System.out.println("--- ЗАКАЗ В КАФЕ ---");
         
-        Beverage myCoffee = new Mocha(); // Базовый напиток: Мокко
-        myCoffee = new Milk(myCoffee);   // Добавили молоко
-        myCoffee = new Syrup(myCoffee);  // Добавили сироп
-        myCoffee = new WhippedCream(myCoffee); // Добавили сливки
+        Beverage order = new Mocha(); // Базовый напиток: Мокко [cite: 20]
+        order = new Milk(order);      // Добавка: Молоко [cite: 11]
+        order = new Syrup(order);     // Добавка: Сироп [cite: 21]
+        order = new WhippedCream(order); // Добавка: Сливки [cite: 21]
         
-        System.out.println("Order: " + myCoffee.getDescription());
-        System.out.println("Total Cost: $" + myCoffee.cost());
+        System.out.println("Заказ: " + order.getDescription()); // [cite: 14]
+        System.out.println("Итоговая стоимость: $" + order.cost()); // [cite: 14]
 
-        System.out.println("\n--- PAYMENT SYSTEM ---");
+        System.out.println("\n--- СИСТЕМА ОПЛАТЫ ---");
 
-        // Тестирование Адаптера [cite: 41, 47]
+        // Тестирование платежных адаптеров [cite: 41, 47]
         IPaymentProcessor paypal = new PayPalPaymentProcessor();
         IPaymentProcessor stripe = new StripePaymentAdapter(new StripePaymentService());
         IPaymentProcessor square = new SquarePaymentAdapter(new SquarePaymentService());
