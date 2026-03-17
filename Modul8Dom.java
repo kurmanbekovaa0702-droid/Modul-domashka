@@ -1,7 +1,7 @@
 import java.util.*;
 
 // ============================================================================
-// ЧАСТЬ 1: СИСТЕМА УПРАВЛЕНИЯ ЗАКАЗАМИ В КАФЕ (ПАТТЕРН ДЕКОРАТОР) [cite: 51]
+// ЧАСТЬ 1: СИСТЕМА КАФЕ (ПАТТЕРН ДЕКОРАТОР)
 // ============================================================================
 
 // Базовый интерфейс для напитков [cite: 54]
@@ -10,7 +10,7 @@ interface Beverage {
     double cost();
 }
 
-// Базовые напитки [cite: 55]
+// Базовые напитки [cite: 55, 67]
 class Espresso implements Beverage {
     public String getDescription() { return "Эспрессо"; }
     public double cost() { return 2.0; }
@@ -21,7 +21,6 @@ class Tea implements Beverage {
     public double cost() { return 1.5; }
 }
 
-// Новые типы напитков по заданию 
 class Latte implements Beverage {
     public String getDescription() { return "Латте"; }
     public double cost() { return 3.0; }
@@ -40,13 +39,13 @@ abstract class BeverageDecorator implements Beverage {
     public double cost() { return beverage.cost(); }
 }
 
-// Конкретные декораторы (добавки) [cite: 58]
+// Конкретные добавки (Декораторы) [cite: 58, 68]
 class Milk extends BeverageDecorator {
     public Milk(Beverage beverage) { super(beverage); }
     @Override
     public String getDescription() { return beverage.getDescription() + ", Молоко"; }
     @Override
-    public double cost() { return beverage.cost() + 0.5; } [cite: 59]
+    public double cost() { return beverage.cost() + 0.5; }
 }
 
 class Sugar extends BeverageDecorator {
@@ -74,7 +73,7 @@ class Syrup extends BeverageDecorator {
 }
 
 // ============================================================================
-// ЧАСТЬ 2: ИНТЕГРАЦИЯ ПЛАТЕЖНЫХ СИСТЕМ (ПАТТЕРН АДАПТЕР) [cite: 73]
+// ЧАСТЬ 2: ПЛАТЕЖНЫЕ СИСТЕМЫ (ПАТТЕРН АДАПТЕР)
 // ============================================================================
 
 // Целевой интерфейс системы [cite: 76, 84]
@@ -82,7 +81,7 @@ interface IPaymentProcessor {
     void processPayment(double amount);
 }
 
-// Существующая реализация (PayPal) [cite: 77, 85]
+// Реализация PayPal [cite: 77, 85]
 class PayPalPaymentProcessor implements IPaymentProcessor {
     public void processPayment(double amount) {
         System.out.println("Оплата $" + amount + " через PayPal выполнена успешно.");
@@ -103,7 +102,7 @@ class StripePaymentAdapter implements IPaymentProcessor {
     public void processPayment(double amount) { stripeService.makeTransaction(amount); }
 }
 
-// Сторонняя система №2 (Square) [cite: 93]
+// Сторонняя система №2 (Square) — дополнительное задание [cite: 93]
 class SquarePaymentService {
     public void executePayment(double val) {
         System.out.println("Платеж на сумму $" + val + " через Square выполнен.");
@@ -118,30 +117,27 @@ class SquarePaymentAdapter implements IPaymentProcessor {
 }
 
 // ============================================================================
-// КЛИЕНТСКИЙ КОД (ТЕСТИРОВАНИЕ) [cite: 60, 88]
+// КЛИЕНТСКИЙ КОД (ТЕСТИРОВАНИЕ)
 // ============================================================================
-
 public class Modul8Dom {
     public static void main(String[] args) {
-        // Тестирование системы кафе
+        // 1. Тестирование Декоратора [cite: 60, 69]
         System.out.println("--- ЗАКАЗ В КАФЕ ---");
+        Beverage order = new Mocha();    // Выбрали Мокко
+        order = new Milk(order);         // Добавили молоко
+        order = new Syrup(order);        // Добавили сироп
+        order = new WhippedCream(order); // Добавили сливки
         
-        Beverage order = new Mocha(); // Базовый напиток: Мокко 
-        order = new Milk(order);      // Добавка: Молоко
-        order = new Syrup(order);     // Добавка: Сироп
-        order = new WhippedCream(order); // Добавка: Сливки [cite: 68]
-        
-        System.out.println("Заказ: " + order.getDescription()); [cite: 61]
-        System.out.println("Итоговая стоимость: $" + order.cost()); [cite: 64]
+        System.out.println("Заказ: " + order.getDescription());
+        System.out.println("Итоговая стоимость: $" + order.cost());
 
+        // 2. Тестирование Адаптера [cite: 88, 94]
         System.out.println("\n--- СИСТЕМА ОПЛАТЫ ---");
-
-        // Тестирование платежных адаптеров [cite: 94]
         IPaymentProcessor paypal = new PayPalPaymentProcessor();
         IPaymentProcessor stripe = new StripePaymentAdapter(new StripePaymentService());
         IPaymentProcessor square = new SquarePaymentAdapter(new SquarePaymentService());
 
-        paypal.processPayment(order.cost()); // Оплата заказа через PayPal
+        paypal.processPayment(order.cost()); // Оплата суммы заказа через PayPal
         stripe.processPayment(25.0);
         square.processPayment(40.0);
     }
