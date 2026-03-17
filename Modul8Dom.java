@@ -65,6 +65,14 @@ class WhippedCream extends BeverageDecorator {
     public double cost() { return beverage.cost() + 0.7; }
 }
 
+class Syrup extends BeverageDecorator {
+    public Syrup(Beverage beverage) { super(beverage); }
+    @Override
+    public String getDescription() { return beverage.getDescription() + ", Сироп"; }
+    @Override
+    public double cost() { return beverage.cost() + 0.4; }
+}
+
 // ============================================================================
 // ЧАСТЬ 2: ПЛАТЕЖНЫЕ СИСТЕМЫ (ПАТТЕРН АДАПТЕР)
 // ============================================================================
@@ -95,7 +103,7 @@ class StripePaymentAdapter implements IPaymentProcessor {
     public void processPayment(double amount) { stripeService.makeTransaction(amount); }
 }
 
-// Дополнительная сторонняя система 2 (Square) - по заданию
+// Дополнительная сторонняя система 2 (Square)
 class SquarePaymentService {
     public void executePayment(double val) {
         System.out.println("Платеж $" + val + " через Square подтвержден.");
@@ -110,28 +118,30 @@ class SquarePaymentAdapter implements IPaymentProcessor {
 }
 
 // ============================================================================
-// КЛИЕНТСКИЙ КОД (Имя класса должно быть Modul8Dom)
+// КЛИЕНТСКИЙ КОД (ТЕСТИРОВАНИЕ)
 // ============================================================================
 public class Modul8Dom {
     public static void main(String[] args) {
-        // Тест Декоратора
-        System.out.println("=== ЗАКАЗ В КАФЕ ===");
-        Beverage myCoffee = new Latte();
-        myCoffee = new Milk(myCoffee);
-        myCoffee = new Sugar(myCoffee);
-        System.out.println("Описание: " + myCoffee.getDescription());
-        System.out.println("Итоговая цена: $" + myCoffee.cost());
+        // Тестирование Декоратора
+        System.out.println("--- ЗАКАЗ В КАФЕ ---");
+        
+        Beverage order = new Mocha();    // Выбрали Мокко
+        order = new Milk(order);         // Добавили молоко
+        order = new Syrup(order);        // Добавили сироп
+        order = new WhippedCream(order); // Добавили сливки
+        
+        System.out.println("Заказ: " + order.getDescription());
+        System.out.println("Итоговая стоимость: $" + order.cost());
 
-        // Тест Адаптера
-        System.out.println("\n=== ПЛАТЕЖНЫЕ СИСТЕМЫ ===");
-        IPaymentProcessor processor;
+        System.out.println("\n--- СИСТЕМА ОПЛАТЫ ---");
 
-        // Используем Stripe через адаптер
-        processor = new StripePaymentAdapter(new StripePaymentService());
-        processor.processPayment(myCoffee.cost());
+        // Тестирование Адаптеров
+        IPaymentProcessor paypal = new PayPalPaymentProcessor();
+        IPaymentProcessor stripe = new StripePaymentAdapter(new StripePaymentService());
+        IPaymentProcessor square = new SquarePaymentAdapter(new SquarePaymentService());
 
-        // Используем Square через адаптер
-        processor = new SquarePaymentAdapter(new SquarePaymentService());
-        processor.processPayment(10.0);
+        paypal.processPayment(order.cost()); // Оплата итоговой суммы заказа
+        stripe.processPayment(25.0);
+        square.processPayment(40.0);
     }
 }
