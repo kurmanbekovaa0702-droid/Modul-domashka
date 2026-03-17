@@ -133,7 +133,7 @@ class SquarePaymentAdapter implements IPaymentProcessor {
 
 // ================= КЛИЕНТСКИЙ КОД =================
 
-public class Main {
+public class Modul8Dom {
     public static void main(String[] args) {
         // Тестирование Декоратора [cite: 13, 22]
         System.out.println("--- CAFE ORDER SYSTEM ---");
