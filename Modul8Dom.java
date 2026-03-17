@@ -1,7 +1,7 @@
 import java.util.*;
 
 // ============================================================================
-// ЧАСТЬ 1: СИСТЕМА КАФЕ (ПАТТЕРН ДЕКОРАТОР)
+// ЧАСТЬ 1: СИСТЕМА УПРАВЛЕНИЯ ЗАКАЗАМИ В КАФЕ (ПАТТЕРН ДЕКОРАТОР)
 // ============================================================================
 
 // Базовый интерфейс для напитков [cite: 54]
@@ -10,7 +10,7 @@ interface Beverage {
     double cost();
 }
 
-// Базовые напитки [cite: 55, 67]
+// Базовые напитки [cite: 55]
 class Espresso implements Beverage {
     public String getDescription() { return "Эспрессо"; }
     public double cost() { return 2.0; }
@@ -21,6 +21,7 @@ class Tea implements Beverage {
     public double cost() { return 1.5; }
 }
 
+// Дополнительные напитки [cite: 67]
 class Latte implements Beverage {
     public String getDescription() { return "Латте"; }
     public double cost() { return 3.0; }
@@ -39,7 +40,7 @@ abstract class BeverageDecorator implements Beverage {
     public double cost() { return beverage.cost(); }
 }
 
-// Конкретные добавки (Декораторы) [cite: 58, 68]
+// Конкретные декораторы (добавки) [cite: 58]
 class Milk extends BeverageDecorator {
     public Milk(Beverage beverage) { super(beverage); }
     @Override
@@ -73,7 +74,7 @@ class Syrup extends BeverageDecorator {
 }
 
 // ============================================================================
-// ЧАСТЬ 2: ПЛАТЕЖНЫЕ СИСТЕМЫ (ПАТТЕРН АДАПТЕР)
+// ЧАСТЬ 2: ИНТЕГРАЦИЯ ПЛАТЕЖНЫХ СИСТЕМ (ПАТТЕРН АДАПТЕР)
 // ============================================================================
 
 // Целевой интерфейс системы [cite: 76, 84]
@@ -81,7 +82,7 @@ interface IPaymentProcessor {
     void processPayment(double amount);
 }
 
-// Реализация PayPal [cite: 77, 85]
+// Существующая реализация [cite: 77, 85]
 class PayPalPaymentProcessor implements IPaymentProcessor {
     public void processPayment(double amount) {
         System.out.println("Оплата $" + amount + " через PayPal выполнена успешно.");
@@ -102,10 +103,10 @@ class StripePaymentAdapter implements IPaymentProcessor {
     public void processPayment(double amount) { stripeService.makeTransaction(amount); }
 }
 
-// Сторонняя система №2 (Square) — дополнительное задание [cite: 93]
+// Дополнительная сторонняя система №2 (Square) [cite: 93]
 class SquarePaymentService {
     public void executePayment(double val) {
-        System.out.println("Платеж на сумму $" + val + " через Square выполнен.");
+        System.out.println("Платеж $" + val + " через Square подтвержден.");
     }
 }
 
@@ -121,23 +122,25 @@ class SquarePaymentAdapter implements IPaymentProcessor {
 // ============================================================================
 public class Modul8Dom {
     public static void main(String[] args) {
-        // 1. Тестирование Декоратора [cite: 60, 69]
+        // Тестирование системы кафе [cite: 69]
         System.out.println("--- ЗАКАЗ В КАФЕ ---");
-        Beverage order = new Mocha();    // Выбрали Мокко
-        order = new Milk(order);         // Добавили молоко
-        order = new Syrup(order);        // Добавили сироп
-        order = new WhippedCream(order); // Добавили сливки
+        
+        Beverage order = new Mocha(); // Базовый напиток: Мокко
+        order = new Milk(order);      // Добавка: Молоко
+        order = new Syrup(order);     // Добавка: Сироп
+        order = new WhippedCream(order); // Добавка: Сливки
         
         System.out.println("Заказ: " + order.getDescription());
         System.out.println("Итоговая стоимость: $" + order.cost());
 
-        // 2. Тестирование Адаптера [cite: 88, 94]
         System.out.println("\n--- СИСТЕМА ОПЛАТЫ ---");
+
+        // Тестирование платежных адаптеров [cite: 94]
         IPaymentProcessor paypal = new PayPalPaymentProcessor();
         IPaymentProcessor stripe = new StripePaymentAdapter(new StripePaymentService());
         IPaymentProcessor square = new SquarePaymentAdapter(new SquarePaymentService());
 
-        paypal.processPayment(order.cost()); // Оплата суммы заказа через PayPal
+        paypal.processPayment(order.cost());
         stripe.processPayment(25.0);
         square.processPayment(40.0);
     }
